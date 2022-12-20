@@ -18,26 +18,20 @@ from numpy import *
 from matplotlib.pyplot import *
 import datetime
 import ephem
-import win32com.client as w32
-import Tkinter as tk
-import time
-from Tkinter import Tk, RIGHT, BOTH, RAISED, X, N,Y, LEFT, END,TOP,E,S,W,WORD,CHAR,SUNKEN,HORIZONTAL,ACTIVE
-import tkFileDialog as filedialog
+
+import tkinter as tk
+from tkinter import  N, END,E,S,W,CHAR,E,filedialog
 import threading
-from multiprocessing import Process
 from dde_client import *
 import pygubu
 import psutil
-#import library
 from library import *
 import subprocess
 import os.path
 import sys
-from shutil import copyfile,move
 from aux_data import *
 import json
-
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
  
 class FuncThread(threading.Thread):
@@ -259,7 +253,7 @@ class App():
         """Begin the main loop"""
         self.aux_it_stop=int(aux_tp/(0.2))
         self.aux_it=0
-        self.update_aux()
+        #self.update_aux()
         self.threaded_solar()
 
         self.update_clock_main()
@@ -328,7 +322,7 @@ class App():
             
         else:
             text="Auxiliary flag mode disabled"
-	self.update_aux()
+        self.update_aux()
         self.write_output(text)
         
     def on_close_aux(self)   :
@@ -360,7 +354,7 @@ class App():
                 except:
                     self.aux_data_listbox.insert(END,"nan")
             self.aux_data_listbox.insert(END,str(self.aux_flag))  
-	    self.aux_label_listbox.insert(END,"Flag")
+            self.aux_label_listbox.insert(END,"Flag")
         
         """Cunningly adds an extra message (or removes it when turned off) if 
         the aux flag has been used to stop a task"""
@@ -414,7 +408,7 @@ class App():
             day="%02d" % now.day
             hour="%02d" % now.hour
             todayspath=year+month+day
-            print "here_1"
+            print("here_1")
             
             """Make a new log file"""
 #            self.schedule_pathout=def_paths_files['datapath']+todayspath+"\\"+todayspath+".log"
@@ -425,7 +419,7 @@ class App():
 
             #reload(library)
             
-            print str(get_local_time(int(site['timezone'])))
+            print(str(get_local_time(int(site['timezone']))))
             self.create_log_file()
             
             """Shall I run the next schedule?"""
@@ -466,7 +460,7 @@ class App():
                 self.scheduled_task_entry.configure(text=self.next_task_name)
 
             elif (self.next_task_time-now).total_seconds()<0:
-                print (self.next_task_time-now).total_seconds(),self.next_task_time
+                print((self.next_task_time-now).total_seconds(),self.next_task_time)
                 taskname=self.next_task_name    
                 task_id=self.task_index
                 self.task_index=find_next_time(array(self.schedule.all_times),self.schedule.task_flags,now+datetime.timedelta(seconds=10))
@@ -490,7 +484,7 @@ class App():
                                 text=text+" - Aux Flag"
                             if self.task_run==1:
                                 text=text+" - Busy"
-                            print self.next_task_time
+                            print(self.next_task_time)
                             self.write_output(text)
                             self.comments[task_id]=text
                             self.schedule.task_flags[task_id]=3
@@ -500,7 +494,7 @@ class App():
                 else:
                     text="Missed "+taskname+' '+str(task_id)+' - Schedule Not Running'
      
-                    print self.next_task_time
+                    print(self.next_task_time)
                     self.write_output(text)
                     self.comments[task_id]=text
                     self.schedule.task_flags[task_id]=3
@@ -574,7 +568,7 @@ class App():
                                         self.process_initialisation(self.next_task_name,xpmpath=def_paths_files['xpmpath'],taskpath=def_paths_files["taskspath"],task_type="dynamic_schedule")
                                         self.write_output("counts = "+str(self.task_counts[self.task_index-1]))
                                 elif self.time_left<datetime.timedelta(minutes=int(self.dynamic_margin_time)) and self.schedule.task_types[self.task_index]!="T":
-                                    print 'here'
+                                    print('here')
                                     current_task=self.task_index
                                     self.next_task_name=str(self.schedule.all_ids[self.task_index])
                                     self.scheduled_task_entry.configure(text=self.next_task_name)
@@ -627,10 +621,10 @@ class App():
         self.elv_entry.configure(text="%.2f" %(90.-sza))
         self.color_lines()
         self.task_countdown_entry.configure(text=countdown_out)
-	self.aux_it=self.aux_it+1
-	if self.aux_it==self.aux_it_stop:
+        self.aux_it=self.aux_it+1
+        if self.aux_it==self.aux_it_stop:
             self.aux_it=0
-	    self.update_aux()
+            self.update_aux()
         #self.root.after(200, self.update_clock)
 
 
@@ -646,14 +640,14 @@ class App():
         """Clean up any dead processes, shouldnt be needed"""
         processes=psutil.pids()
         for i in range(len(self.process_ids)):
-	    try:
-            	if self.process_ids[i] in processes:
+            try:
+                if self.process_ids[i] in processes:
                     self.write_output("One Orphan Found - "+str(self.process_ids[i]))
                     process=psutil.Process(self.process_ids[i])
                     process.kill()
-	    except:
-		    self.write_output("Failed to kill Orphan - "+str(self.process_ids[i])+" proceeding anyway")
-	self.process_ids=[]
+            except:
+                self.write_output("Failed to kill Orphan - "+str(self.process_ids[i])+" proceeding anyway")
+        self.process_ids=[]
  
     def abort_task(self):
         """Sets an abort flag to true (1) so that the remaining xpms in a task are cancelled"""
@@ -688,7 +682,7 @@ class App():
             t2=ThreadWithReturnValue(target=daily_info,args=(float(site['latitude']),float(site['longe']),float(site['timezone']),float(site['pressure']),float(site['temperature'])))
             t2.start()
             """While the thread is going, check on it, once finished proceed"""
-            while t2.isAlive():
+            while t2.is_alive():
                 self.update_clock()
                 self.root.update()
                 time.sleep(0.2)
@@ -752,7 +746,7 @@ class App():
         self.taskname=taskname
         
         if task_type=="manual":
-            print "here"
+            print("here")
            # self.taskname=self.manual_task_entry.cget("text")
             if self.taskname=="Select Task or Xpm":
                 self.write_output("No Task or Xpm selected")
@@ -766,7 +760,7 @@ class App():
                 self.sched_run_flag=0
                 self.timestamp=format_time(self.start_time)
                 self.current_status_label.configure(text="Current Status: Running Manual Job")
-                print self.taskname
+                print(self.taskname)
                 self.begin_opus_process(self.taskname,xpmpath,taskpath)
               #  self.t1=threading.Thread(target=self.begin_opus_process,args=(self.taskname,xpmpath,taskpath,))
               #  self.t1.start()
@@ -831,9 +825,9 @@ class App():
                 os.makedirs(os.path.dirname(self.schedule_pathout))
             except:
                 pass
-	    f=open(self.schedule_pathout,"a")
-	    f.write("** weather, cell info\n")
-            f.close()
+        f=open(self.schedule_pathout,"a")
+        f.write("** weather, cell info\n")
+        f.close()
 
     def log_schedule(self):
         """See above"""
@@ -858,7 +852,7 @@ class App():
                     self.comments.append("Scheduled")
                 if int(self.schedule.task_flags[i])==6:
                     self.comments.append("Scheduled - Ignoring Aux")
-            print len(self.comments)
+            print(len(self.comments))
             f=open(self.schedule_pathout,"a")
            # f.write(self.timestamp+" BrukeryPy Restarted\n")
         
@@ -974,7 +968,7 @@ class App():
         for i in range(len(file_path)-1):
             path=path+file_path[i]+'/'
         self.manual_task_entry.configure(text=filename)
-        print path
+        print(path)
         
         self.process_initialisation(filename,xpmpath=def_paths_files['xpmpath'],taskpath=path,task_type="manual")
 
@@ -1285,7 +1279,7 @@ class App():
                     
                     elif self.abort_flag==0:
                         command=['pythonw','exec_xpm.py',xpm_path,str(experiments[p]),str(self.legacy_format_mode.get()),self.schedule_pathout,str(p+1),str(len(experiments)),str(self.gui_test_mode),str(self.simulator_mode)]
-                        print command
+                        print('Submitting command - '+' '.join(command))
     
                         self.write_output("Starting Xpm - "+experiments[p]+" ("+str(p+1)+"/"+str(len(experiments))+")")
                         
@@ -1295,7 +1289,7 @@ class App():
                         t3.start()
                         """While the thread is going, check on it, once finished proceed"""
                         self.initialising_flag=0
-                        while t3.isAlive():
+                        while t3.is_alive():
                             self.update_clock()
                             self.root.update()
                             time.sleep(0.2)
@@ -1372,7 +1366,7 @@ class App():
             self.abort_task_button.config(state="disabled")
             command='pythonw exec_xpm.py "'+xpmpath+'" '+taskname+' '+str(self.legacy_format_mode.get())+' "'+str(self.schedule_pathout)+'" 1 1 '+str(self.gui_test_mode)+' '+str(self.simulator_mode)
             #command="pythonw exec_xpm.py "+xpmpath+" "+taskname+" "+str(self.legacy_format_mode.get())+" "+self.schedule_pathout+" 1 1 "+str(self.gui_test_mode)+" "+str(self.simulator_mode)
-            print command
+            print('Submitting command - ' + command)
             
             """Quick check to that the previous process is dead, not really needed"""
 
@@ -1384,7 +1378,7 @@ class App():
             t3.start()
             self.initialising_flag=0
 
-            while t3.isAlive():
+            while t3.is_alive():
                 self.update_clock()
                 self.root.update()
                 time.sleep(0.2)
@@ -1404,13 +1398,13 @@ if __name__=='__main__':
     
     args=sys.argv
     if len(args)==1:
-        config_file='asap.ini'
+        config_file='asap_test.ini'
     else:
         config_file=args[1]
-    print config_file
+    print('Config File - '+config_file)
 
     
-    config=ConfigParser.ConfigParser()
+    config=configparser.ConfigParser()
     config.read(config_file)
     
     

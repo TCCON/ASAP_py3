@@ -21,22 +21,24 @@ import time
 import os.path
 import subprocess
 import win32com.client
-import ConfigParser
+import configparser
 from threading import Thread
 import pandas as pd
 
 class ThreadWithReturnValue(Thread):
     def __init__(self, group=None, target=None, name=None,
                  args=(), kwargs={}, Verbose=None):
-        Thread.__init__(self, group, target, name, args, kwargs, Verbose)
+        Thread.__init__(self, group, target, name, args, kwargs)
         self._return = None
     def run(self):
-        if self._Thread__target is not None:
-            self._return = self._Thread__target(*self._Thread__args,
-                                                **self._Thread__kwargs)
-    def join(self):
-        Thread.join(self)
+        print(type(self._target))
+        if self._target is not None:
+            self._return = self._target(*self._args,
+                                                **self._kwargs)
+    def join(self, *args):
+        Thread.join(self, *args)
         return self._return
+
     
     
 def get_local_time(timezone):
@@ -64,7 +66,7 @@ def open_opus():
     i=0
     while i<10:
         try:
-            print "enter attempt "+str(i)
+            print("enter attempt "+str(i))
             shell=win32com.client.Dispatch("WScript.Shell")
             shell.AppActivate("Opus")
             time.sleep(5)   
@@ -80,7 +82,7 @@ def close_opus():
     i=0
     while i<5:
         try:
-            print "kill attempt "+str(i)
+            print("kill attempt "+str(i))
             subprocess.Popen('taskkill /IM opus.exe')
             i=i+1
             time.sleep(5)
@@ -569,7 +571,7 @@ def dynamic_schedule(a,daily_info):
 
     """read schedule 'a' and compute an expected time schedule based on the szas and times required
     """
-    print a
+    print(a)
     
     database=loadtxt(a,dtype=str,unpack=True,skiprows=2)
 
@@ -618,20 +620,20 @@ def dynamic_schedule(a,daily_info):
             ranges=database[1:3,i]
             if database[0][i]=='Z':
                 """Find the blocks in the morning"""
-                print database[:,i]
+                print(database[:,i])
                 if float(ranges[0])>daily_info.low_sun_sza1>float(ranges[1]):
-                    print i,"a"
+                    print(i,"a")
                     """start time is low sun sza time"""
                     start_am=daily_info.times_local[daily_info.low_sun_idx1]
                     stop_am=daily_info.times_local[find_nearest(array(daily_info.sza_ref[0:daily_info.high_sun_idx]),float(ranges[1]))]
                     if stop_am!=start_am:
-                        print "1"
+                        print("1")
                         windows_start.append(start_am)
                         windows_stop.append(stop_am)
                         window_identity.append(i)
                     
                 elif float(ranges[0])>daily_info.high_sun_sza<float(ranges[1]):
-                    print 2
+                    print(2)
                     start_am=daily_info.times_local[find_nearest(array(daily_info.sza_ref[0:daily_info.high_sun_idx]),float(ranges[0]))]
                     stop_am=daily_info.times_local[find_nearest(array(daily_info.sza_ref[0:daily_info.high_sun_idx]),float(ranges[1]))]
                     if stop_am!=start_am:
@@ -640,7 +642,7 @@ def dynamic_schedule(a,daily_info):
                         window_identity.append(i)
                     
                 elif float(ranges[0])>daily_info.high_sun_sza>float(ranges[1]):
-                    print i,"d"
+                    print(i,"d")
                     start_am=daily_info.times_local[find_nearest(array(daily_info.sza_ref[0:daily_info.high_sun_idx]),float(ranges[0]))]
                     stop_pm=daily_info.times_local[find_nearest(array(daily_info.sza_ref[daily_info.high_sun_idx:]),float(ranges[0]))+daily_info.high_sun_idx]
                     if stop_pm!=start_am:
@@ -650,7 +652,7 @@ def dynamic_schedule(a,daily_info):
 
                 if float(ranges[0])>daily_info.low_sun_sza2>float(ranges[1]):
                     """start time is low sun sza time"""
-                    print i, "b"
+                    print(i, "b")
                     stop_pm=daily_info.times_local[daily_info.low_sun_idx2]
                     start_pm=daily_info.times_local[find_nearest(array(daily_info.sza_ref[daily_info.high_sun_idx:]),float(ranges[1]))+daily_info.high_sun_idx]
                     if stop_pm!=start_pm:
@@ -747,7 +749,7 @@ def dynamic_schedule(a,daily_info):
             if windows_start[next_start-1]==windows_start[next_start]:
                 del windows_start[next_start-1]
                 del window_identity[next_start-1]
-        print window_identity
+        print(window_identity)
         tasknames_out=[]
         for i in range(len(window_identity)-1):    
             

@@ -202,7 +202,7 @@ class DDEClient(object):
 
     def callback(self, value, item=None):
         """Calback function for advice."""
-        print "%s: %s" % (item, value)
+        print("%s: %s" % (item, value))
 
     def _callback(self, wType, uFmt, hConv, hsz1, hsz2, hDdeData, dwData1, dwData2):
         #if wType == XTYP_ADVDATA:
