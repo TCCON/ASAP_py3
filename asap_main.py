@@ -243,6 +243,7 @@ class App():
         """Configure the auxiliary data, we first need to check if the ability to
         gather aux is enabled"""
         self.gather_aux=gather_aux
+        self.aux_flag=0
         if self.gather_aux==0:
             self.aux_flag=0
             self.use_aux_flag_data_checkbutton.configure(state="disabled")
@@ -253,7 +254,7 @@ class App():
         """Begin the main loop"""
         self.aux_it_stop=int(aux_tp/(0.2))
         self.aux_it=0
-        #self.update_aux()
+        self.update_aux()
         self.threaded_solar()
 
         self.update_clock_main()
@@ -726,6 +727,8 @@ class App():
 
         else:
             self.next_task_name='Failed'
+            self.task_index=-1
+            self.next_task_time=get_local_time(int(site['timezone']))
             self.scheduled_task_entry.configure(text=self.next_task_name) 
             self.write_output("Failed to Load Schedule")
             
@@ -1232,8 +1235,8 @@ class App():
                     self.id1=None
                     python_server=None
                     self.link=DDEClient("Opus","System")
-                    output1=self.link.request("GET_VERSION")
-                    output2=self.link.request("GET_BENCH")
+                    output1=self.link.request("GET_VERSION").decode()
+                    output2=self.link.request("GET_BENCH").decode()
         
                     output1=output1.strip("\n")
                     output2=output2.strip("\n")
@@ -1398,7 +1401,7 @@ if __name__=='__main__':
     
     args=sys.argv
     if len(args)==1:
-        config_file='asap_test.ini'
+        config_file='asap.ini'
     else:
         config_file=args[1]
     print('Config File - '+config_file)

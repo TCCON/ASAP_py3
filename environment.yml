@@ -1,4 +1,4 @@
-name: asap-v-2-0-py-3
+name: asap_py3_env
 channels:
   - defaults
 dependencies:

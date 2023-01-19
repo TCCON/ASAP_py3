@@ -13,7 +13,7 @@ few dummy examples which you can copy into the main function if you just want to
 from numpy import *
 import time
 import datetime
-import urllib
+from urllib.request import urlopen
 
 def find_nearest(array,value):
     idx = (abs(array-value)).argmin()
@@ -83,7 +83,7 @@ def gather_auxiliary_data():
     day="%02d" % now.day
     todayspath=year+month+day
     try:
-        f=urllib.urlopen("http://10.10.0.100:8080/logs/"+todayspath+"/solar.txt").read()
+        f=urlopen("http://10.10.0.100:8080/logs/"+todayspath+"/solar.txt").read().decode()
         lastline=(f.split("\n")[-2]).split()
         if lastline[-1] not in ["cloudy","stopped","north"] :
             flag=0

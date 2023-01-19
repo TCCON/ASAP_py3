@@ -11,7 +11,7 @@ import datetime
 import win32com.client as w32
 import time
 
-import ConfigParser
+import configparser
 from dde_client import *
 from library import *
 import os
@@ -20,7 +20,7 @@ import sys
 
 if __name__=='__main__':
     
-    config=ConfigParser.ConfigParser()
+    config=configparser.ConfigParser()
     config.read('asap.ini')
     site=config_out('site',config)
     def_paths_files=config_out('paths/files',config)
@@ -30,7 +30,7 @@ if __name__=='__main__':
 
     sys.stdout= open(log_path+"exec_log.dat","a")
     sys.stderr=sys.stdout
-    print sys.argv[1:]
+    print(sys.argv[1:])
 
 
 	
@@ -39,7 +39,7 @@ if __name__=='__main__':
 
     if int(gui_test_mode)==0:
         """Submit a proper experiment to opus"""
-        print xpm_name
+        print(xpm_name)
         link=None
         id1=None
         python_server=None
@@ -51,7 +51,7 @@ if __name__=='__main__':
 
        # print xpm_path
         start_time=datetime.datetime.now()
-        print start_time
+        print(start_time)
 #        f=open(log,'a')
 #        timestamp=format_time(start_time)
 #        f.write(timestamp+" Starting Xpm - "+xpm_file+" ("+str(a)+"/"+str(b)+")\n")
@@ -65,12 +65,12 @@ if __name__=='__main__':
         link.request(output_path+endoffile)
         link.request(output_file+endoffile)
         link.request(xpm_file+endoffile)
-        id1=link.request(xpm_path+endoffile)     
+        id1=link.request(xpm_path+endoffile).decode()     
         macro_id=str(id1[4:-1])
-	print 'submitted'
+        print('submitted',macro_id)
         #Executes Experiment, need to wait until it is complete. This process will be threaded so the gui will be fine, but i dont want to spam opus
         try:
-            while link.request("MACRO_RESULTS "+macro_id)[4]=='0':
+            while link.request("MACRO_RESULTS "+macro_id).decode()[4]=='0':
                 time.sleep(1)
         except:
             print("Error in Opus polling, im probably ok so will proceed")
@@ -79,7 +79,7 @@ if __name__=='__main__':
         end_time=datetime.datetime.now()
         timestamp=format_time(end_time)
         duration=str((end_time-start_time).seconds)
-        print end_time
+        print(end_time)
 #        f=open(log,'a')
 #        f.write(timestamp+" Xpm Complete - "+xpm_name+" Duration "+duration+ " Secs.\n")
 #        f.close()
@@ -90,9 +90,9 @@ if __name__=='__main__':
         dummy_time=int(site['gui_test_xpm_time'])
        # f=open(log,'a')
         start_time=datetime.datetime.now()
-        print style
+        print(style)
         timestamp=format_time(start_time)
-        print timestamp+' dummy xpm'    
+        print(timestamp+' dummy xpm'    )
 
 #        f.write(timestamp+" Starting Xpm - Dummy "+xpm_file+" ("+str(a)+"/"+str(b)+")\n")
 #        f.close()
